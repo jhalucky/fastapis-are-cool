@@ -18,3 +18,4 @@ def registration():
     age = int(input("Enter your age: "))
 
     return name, age
+
