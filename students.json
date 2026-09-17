@@ -1,2 +1,3 @@
-{"S001":{"name":"Lucky Jha", "roll no": "231068", "course": "b.tech", "domain": "computer science", "semester" : "7", "fees": "Paid"}, "S002": {"name" : "Ankush", "roll no": "231008", "branch" : "btech", "domain": "computer science", "semester": "7", "fees": "7"},
+{"S001":{"name":"Lucky Jha", "roll no": "231068", "course": "b.tech", "domain": "computer science", "semester" : "7", "fees": "Paid"},
+"S002": {"name" : "Ankush", "roll no": "231008", "branch" : "btech", "domain": "computer science", "semester": "7", "fees": "7"},
 "S003": {"name": "Mayank", "roll no": "230001", "course": "b.tech", "domain": "aids", "semester": "5", "fees": "Not paid"}}
