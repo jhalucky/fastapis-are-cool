@@ -37,11 +37,11 @@ def view_student(student_id: str = Path(..., description="ID of the student in t
 
 
 @app.get('/sort')
-def sort_students(sort_by: str = Query(..., description='Sort on the basis of semester'), order: str = Query('asc',desc='sort in asc or desc order')):
+def sort_students(sort_by: str = Query(..., description='Sort on the basis of semester'), order: str = Query('asc',description='sort in asc or desc order')):
 
-    valid_fields = 'semester'
+    valid_fields = ['semester','age']
 
-    if sort_by is valid_fields:
+    if sort_by not in valid_fields:
         raise HTTPException(status_code=400, detail=f'Invalid field select from {valid_fields}')
 
 
@@ -53,3 +53,5 @@ def sort_students(sort_by: str = Query(..., description='Sort on the basis of se
     sort_order = True if order=='desc' else False
 
     sorted_data = sorted(data.values(), key= lambda x:x.get(sort_by, 0), reverse=sort_order)
+
+    return sorted_data
