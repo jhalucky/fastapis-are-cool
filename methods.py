@@ -1,13 +1,43 @@
 from fastapi import FastAPI, Path, HTTPException, Query
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field, computed_field
+from typing import Annotated
 import json
 
 app = FastAPI()
+
+class Student(BaseModel):
+    id: Annotated[str, Field(..., description='ID of the student',examples=['S001'])]
+    name: Annotated[str, Field(..., description='Name of the student')]
+    age: Annotated[int, Field(..., gt=0, lt=25, description='Age of the student')]
+    roll_no: Annotated[int, Field(..., examples=['231000'])]
+    course: str
+    domain: str
+    semester: int
+    fees: str
+
+    @computed_field
+    @property
+    def previous_balances(self) -> int:
+        balances = 0
+        if self.fees == 'Not paid':
+            balances+=10000
+
+        return balances
+
+        
 
 def load_data():
     with open('students.json','r') as f:
         data = json.load(f)
 
         return data
+
+
+def save_data(data):
+    with open("students.json",'w') as f:
+        json.dump(data, f)
+
 
 
 @app.get("/")
@@ -55,3 +85,23 @@ def sort_students(sort_by: str = Query(..., description='Sort on the basis of se
     sorted_data = sorted(data.values(), key= lambda x:x.get(sort_by, 0), reverse=sort_order)
 
     return sorted_data
+
+
+@app.post('/register-student')
+def create_student(student: Student):
+
+    # load existing data
+    data = load_data()
+
+    # check if student already exists
+    if student.id in data:
+        raise HTTPException(status_code=400,detail='Student already exists')
+
+    # new student to the db
+    data[student.id] = student.model_dump(exclude=['id'])
+
+    # save 
+    save_data(data)
+
+    return JSONResponse(status_code=201, content={'message':'patient created successfully'})
+
