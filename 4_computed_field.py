@@ -14,7 +14,7 @@ class Patient(BaseModel):
 
     @computed_field
     @property
-    def calculate_bmi(self) -> float:
+    def bmi(self) -> float:
         bmi = round(self.weight/(self.height**2),2)
         return bmi
 
@@ -25,7 +25,7 @@ def update_patient_data(patient: Patient):
     print(patient.allergies)
     print(patient.weight)
     print(patient.height)
-    print('BMI:', patient.calculate_bmi)
+    print('BMI:', patient.bmi)
     print('updated')
 
 
