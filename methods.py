@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Path, HTTPException, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, computed_field
-from typing import Annotated
+from typing import Annotated, Optional
 import json
 
 app = FastAPI()
@@ -11,8 +11,8 @@ class Student(BaseModel):
     name: Annotated[str, Field(..., description='Name of the student')]
     age: Annotated[int, Field(..., gt=0, lt=25, description='Age of the student')]
     roll_no: Annotated[int, Field(..., examples=['231000'])]
-    course: str
-    domain: str
+    course: Annotated[str, Field(...)]
+    domain: Annotated[str, Field(...)]
     semester: int
     fees: str
 
@@ -25,7 +25,37 @@ class Student(BaseModel):
 
         return balances
 
-        
+class StudentUpdate(BaseModel):
+
+    name: Annotated[
+        Optional[str],
+        Field(description='Name of the student')
+    ] = None
+
+    age: Annotated[
+        Optional[int],
+        Field(gt=0, lt=25, description='Age of the student')
+    ] = None
+
+    roll_no: Annotated[
+        Optional[int],
+        Field(examples=[231000])
+    ] = None
+
+    course: Annotated[
+        Optional[str],
+        Field()
+    ] = None
+
+    domain: Annotated[
+        Optional[str],
+        Field()
+    ] = None
+
+    semester: Optional[int] = None
+
+    fees: Optional[str] = None
+           
 
 def load_data():
     with open('students.json','r') as f:
@@ -105,3 +135,29 @@ def create_student(student: Student):
 
     return JSONResponse(status_code=201, content={'message':'patient created successfully'})
 
+@app.put('/edit/{student_id}')
+def update_student(student_id: str, student_update: StudentUpdate):
+
+    data = load_data()
+
+    if student_id not in data:
+        raise HTTPException(status_code=400, detail='Student not found')
+
+    existing_student_info = data[student_id]
+
+    updated_student_info = student_update.model_dump(exclude_unset=True)
+
+    for key, value in updated_student_info.items():
+        existing_student_info[key] = value
+
+    existing_student_info['id'] = student_id
+    pydantic_student_obj = Student(**existing_student_info)
+
+    existing_student_info = pydantic_student_obj.model_dump(exclude='id')
+
+    data[student_id] = existing_student_info 
+
+
+    save_data(data)
+
+    return JSONResponse(status_code=200, content={"message": "Patient updated" })
